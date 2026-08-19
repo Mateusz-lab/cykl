@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Cykl</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#141020">
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cykl">
+  <style>
+    :root {
+      --night: #141020;
+      --dusk: #1D172E;
+      --line: #332A4A;
+      --ink: #EFE9F7;
+      --muted: #9C90B8;
+      --rose: #F05C7C;
+      --mint: #68CEB6;
+      --amber: #F7B858;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--night);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    header.app-header {
+      padding: env(safe-area-inset-top) 20px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--night);
+    }
+
+    .app-title {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 70px; /* space for bottom nav */
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .placeholder {
+      color: var(--muted);
+      text-align: center;
+      margin-top: 100px;
+      font-size: 16px;
+    }
+
+    /* Stage 4 — Today tab: cycle ring */
+    .ring-wrap {
+      position: relative;
+      width: min(78vw, 300px);
+      margin: 12px auto 0;
+    }
+
+    #cycle-ring { display: block; width: 100%; height: auto; }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .ring-day-num {
+      font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+      font-size: 64px;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .ring-phase {
+      margin-top: 8px;
+      max-width: 70%;
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .ring-tick { stroke-linecap: round; stroke-width: 2.5; }
+    .tick-period { stroke: var(--rose); }
+    .tick-fertile { stroke: var(--mint); }
+    .tick-ovulation { stroke: var(--amber); }
+    .tick-rest { stroke: var(--muted); opacity: .35; stroke-width: 1.5; }
+
+    /* Predicted days are dashed outlines — never solid fills (PLAN §5 rule 9) */
+    .tick-predicted { stroke-dasharray: 2 3; }
+
+    #today-dot { fill: var(--ink); }
+
+    /* Empty state: dim the ring and invite the first entry */
+    .ring-empty #cycle-ring,
+    .ring-empty .ring-day-num { opacity: .4; }
+
+    @keyframes tick-in { from { opacity: 0; } }
+    .ring-animate .ring-tick { animation: tick-in .3s ease backwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .ring-animate .ring-tick { animation: none; }
+    }
+
+    .mark-period-btn {
+      width: 100%;
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--rose);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mark-period-btn.unmark {
+      background: transparent;
+      color: var(--rose);
+      box-shadow: inset 0 0 0 1.5px var(--rose);
+    }
+
+    .upcoming-title {
+      margin-top: 28px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .upcoming-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+    .upcoming-item {
+      background: var(--dusk);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .upcoming-label { font-size: 13px; color: var(--muted); }
+    .upcoming-date { font-size: 15px; font-weight: 600; text-align: right; }
+    .upcoming-rel { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--dusk);
+      border-top: 1px solid var(--line);
+      display: flex;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .nav-item.active {
+      color: var(--ink);
+    }
+
+    .nav-icon {
+      display: block;
+      width: 24px;
+      height: 24px;
+      margin: 0 auto 4px;
+      fill: currentColor;
+    }
+
+    /* ============================================ */
+    /* CALENDAR TAB                                 */
+    /* ============================================ */
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .cal-month-label {
+      font-size: 18px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .cal-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--dusk);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .cal-nav-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-day-name {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding-bottom: 8px;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1/1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .cal-cell:not(.empty):hover {
+      background: var(--dusk);
+    }
+
+    .cal-cell.empty {
+      cursor: default;
+    }
+
+    .cal-cell.period {
+      background: rgba(240, 92, 124, 0.15);
+      color: var(--rose);
+    }
+
+    .cal-cell.today {
+      outline: 2px solid var(--ink);
+      outline-offset: -3px;
+      font-weight: 600;
+    }
+
+    .cal-cell.has-data::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+
+    .cal-cell.period.has-data::after {
+      bottom: -2px;
+    }
+
+    /* ============================================ */
+    /* BOTTOM SHEET                                 */
+    /* ============================================ */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+
+    .sheet-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      background: var(--dusk);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 16px 20px calc(20px + env(safe-area-inset-bottom));
+      z-index: 11;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .sheet.open {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--line);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+
+    .sheet-title {
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 16px;
+    }
+
+    .sheet-section {
+      margin-bottom: 18px;
+    }
+
+    .sheet-label {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding-bottom: 8px;
+    }
+
+    /* Segmented control */
+    .segmented {
+      display: flex;
+      background: var(--night);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .seg-option {
+      flex: 1;
+      text-align: center;
+      padding: 8px 4px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 9px;
+      transition: all 0.2s;
+    }
+
+    .seg-option.active {
+      background: var(--dusk);
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    /* Chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 7px 14px;
+      background: var(--night);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip.active {
+      background: rgba(240, 92, 124, 0.18);
+      color: var(--rose);
+      border-color: transparent;
+    }
+
+    /* Note field */
+    textarea.note-field {
+      width: 100%;
+      min-height: 70px;
+      background: var(--night);
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+    }
+
+    textarea.note-field:focus {
+      outline: none;
+      box-shadow: 0 0 0 1px var(--line) inset;
+    }
+
+    .sheet-done-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 14px;
+      background: var(--rose);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ============================================ */
+    /* HISTORY TAB — Stage 5                        */
+    /* ============================================ */
+    .section-title {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 24px 0 10px;
+    }
+
+    .tab-content .section-title:first-child { margin-top: 0; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat-tile {
+      background: var(--dusk);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .stat-value {
+      font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .stat-unit {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: 3px;
+    }
+
+    .stat-label {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    #cycle-chart {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: var(--dusk);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .cycle-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+    .cycle-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: var(--dusk);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .cycle-item.excluded { opacity: .55; border-style: dashed; }
+
+    .cycle-start { font-size: 14px; font-weight: 600; }
+
+    .cycle-meta {
+      display: block;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .cycle-right { text-align: right; }
+    .cycle-len { font-size: 15px; font-weight: 600; }
+
+    .excluded-badge {
+      display: inline-block;
+      font-size: 11px;
+      color: var(--amber);
+      border: 1px solid var(--amber);
+      border-radius: 999px;
+      padding: 2px 8px;
+      margin-bottom: 4px;
+    }
+
+    .history-empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 30px 0;
+      font-size: 15px;
+    }
+
+    /* ============================================ */
+    /* SETTINGS TAB — Stage 5                       */
+    /* ============================================ */
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .setting-label { font-size: 15px; }
+
+    .stepper { display: flex; align-items: center; gap: 12px; }
+
+    .stepper-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--night);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .stepper-value {
+      font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+      font-size: 20px;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .settings-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-secondary { background: var(--dusk); color: var(--ink); border: 1px solid var(--line); }
+    .btn-danger { background: transparent; color: var(--rose); border: 1px solid var(--rose); }
+
+    .disclaimer {
+      margin-top: 20px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div class="app-title">Cykl</div>
+    </header>
+
+    <main>
+      <!-- Stage 4 — Today tab: cycle ring, mark button, upcoming dates -->
+      <section id="tab-today" class="tab-content active">
+        <div class="ring-wrap" id="ring-wrap">
+          <svg id="cycle-ring" viewBox="0 0 260 260" role="img" aria-label="Pierścień cyklu"></svg>
+          <div class="ring-center">
+            <div class="ring-day-num" id="ring-day-num"></div>
+            <div class="ring-phase" id="ring-phase"></div>
+          </div>
+        </div>
+
+        <button class="mark-period-btn" id="mark-period-btn"></button>
+
+        <h2 class="upcoming-title">Nadchodzące daty</h2>
+        <ul class="upcoming-list" id="upcoming-list"></ul>
+      </section>
+
+      <section id="tab-calendar" class="tab-content">
+        <div class="cal-header">
+          <button class="cal-nav-btn" id="cal-prev" aria-label="Poprzedni miesiąc">
+            <svg viewBox="0 0 24 24"><path d="M15.7 18.3l-6-6 6-6"/></svg>
+          </button>
+          <div class="cal-month-label" id="cal-month"></div>
+          <button class="cal-nav-btn" id="cal-next" aria-label="Następny miesiąc">
+            <svg viewBox="0 0 24 24"><path d="M8.3 5.7l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </section>
+
+      <!-- Bottom sheet for day logging -->
+      <div class="sheet-backdrop" id="day-sheet-backdrop"></div>
+      <div class="sheet" id="day-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title" id="day-sheet-title"></h3>
+
+        <div class="sheet-section">
+          <div class="sheet-label">Nasilenie</div>
+          <div class="segmented" id="flow-seg">
+            <div class="seg-option active" data-flow="0">brak</div>
+            <div class="seg-option" data-flow="1">plamienie</div>
+            <div class="seg-option" data-flow="2">słabe</div>
+            <div class="seg-option" data-flow="3">średnie</div>
+            <div class="seg-option" data-flow="4">mocne</div>
+          </div>
+        </div>
+
+        <div class="sheet-section">
+          <div class="sheet-label">Objawy</div>
+          <div class="chips" id="sym-chips"></div>
+        </div>
+
+        <div class="sheet-section">
+          <div class="sheet-label">Nastroje</div>
+          <div class="chips" id="mood-chips"></div>
+        </div>
+
+        <div class="sheet-section">
+          <textarea class="note-field" id="day-note" placeholder="Notatki…"></textarea>
+        </div>
+
+        <button class="sheet-done-btn" id="sheet-done">Gotowe</button>
+      </div>
+
+      <section id="tab-history" class="tab-content">
+        <h2 class="section-title">Statystyki</h2>
+        <div class="stat-grid" id="stat-grid"></div>
+
+        <h2 class="section-title">Ostatnie 8 cykli</h2>
+        <svg id="cycle-chart" viewBox="0 0 340 170" role="img" aria-label="Wykres długości ostatnich cykli"></svg>
+
+        <h2 class="section-title">Wszystkie cykle</h2>
+        <ul class="cycle-list" id="cycle-list"></ul>
+      </section>
+
+      <section id="tab-settings" class="tab-content">
+        <h2 class="section-title">Domyślne wartości</h2>
+        <div id="settings-controls"></div>
+
+        <h2 class="section-title">Dane</h2>
+        <div class="settings-actions">
+          <button class="btn btn-secondary" id="export-btn">Eksportuj dane (JSON)</button>
+          <button class="btn btn-secondary" id="import-btn">Importuj dane</button>
+          <input type="file" id="import-file" accept="application/json,.json" hidden>
+          <button class="btn btn-danger" id="delete-all-btn">Usuń wszystkie dane</button>
+        </div>
+
+        <p class="disclaimer">Prognozy w tej aplikacji są oszacowane na podstawie wpisanych danych i nie są metodą antykoncepcji.</p>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <div class="nav-item active" data-tab="today">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3v7l5 3"/></svg>
+        Dziś
+      </div>
+      <div class="nav-item" data-tab="calendar">
+        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4"/></svg>
+        Kalendarz
+      </div>
+      <div class="nav-item" data-tab="history">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg>
+        Historia
+      </div>
+      <div class="nav-item" data-tab="settings">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Ustawienia
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // ============================================
+    // STORAGE LAYER — single localStorage key
+    // ============================================
+    const STORAGE_KEY = 'cykl.data';
+
+    let state = {
+      v: 1,
+      settings: { cycleLen: 28, periodLen: 5, lutealLen: 14 },
+      days: {}
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          state = JSON.parse(raw);
+          // merge defaults for safety
+          state.settings = Object.assign({ cycleLen: 28, periodLen: 5, lutealLen: 14 }, state.settings);
+        }
+      } catch (e) {
+        console.error('Failed to load state', e);
+      }
+    }
+
+    let saveTimer;
+    function saveState() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          console.error('Failed to save state', e);
+        }
+      }, 100); // debounce writes
+    }
+
+    function updateDay(dateKey, changes) {
+      const day = Object.assign({}, state.days[dateKey] || {}, changes);
+      // Remove empty days so storage doesn't bloat
+      if (!day.flow && !day.sym?.length && !day.mood?.length && !day.note) {
+        delete state.days[dateKey];
+      } else {
+        state.days[dateKey] = day;
+      }
+      saveState();
+    }
+
+    function setSettings(changes) {
+      state.settings = Object.assign(state.settings, changes);
+      saveState();
+    }
+
+    // ============================================
+    // DATE HELPERS — local time only, never UTC
+    // ============================================
+    function toKey(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function fromKey(key) {
+      const [y, m, d] = key.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    // ============================================
+    // TAB NAVIGATION
+    // ============================================
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => switchTab(item.dataset.tab));
+    });
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelector(`.nav-item[data-tab="${tab}"]`).classList.add('active');
+      if (tab === 'today') renderToday(); // rebuild ring when the tab is shown
+      else if (tab === 'history') renderHistory();
+      else if (tab === 'settings') renderSettings();
+    }
+
+    // ============================================
+    // CALENDAR TAB — Stage 2
+    // ============================================
+    const MONTHS_PL = [
+      'styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec',
+      'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'
+    ];
+    const DAYS_PL = ['pon', 'wt', 'śr', 'czw', 'pt', 'sob', 'nd'];
+
+    // Day of week -> index where 0=Monday ... 6=Sunday
+    function dowToIndex(dow) { return (dow + 6) % 7; }
+
+    const FLOW_LABELS = ['', 'plamienie', 'słabe', 'średnie', 'mocne'];
+    const SYMPTOMS_PL = [
+      ['skurcze', 'Skurcze'], ['bol_glowy', 'Ból głowy'], ['bol_plec', 'Ból pleców'],
+      ['tkliwosc_piersi', 'Tkliwość piersi'], ['wdziecia', 'Wzdęcia'], ['zmeczenie', 'Zmęczenie'],
+      ['tradczik', 'Trądzik'], ['nudnosci', 'Nudności'], ['zachcianki', 'Zachcianki'],
+      ['bezsenność', 'Bezsenność']
+    ];
+    const MOODS_PL = [
+      ['spokoj', 'Spokój'], ['radosc', 'Radość'], ['energia', 'Energia'],
+      ['dralizliwosc', 'Drażliwość'], ['smutek', 'Smutek'], ['lek', 'Lęk'],
+      ['placzliwosc', 'Płaczliwość']
+    ];
+
+    let calYear, calMonth; // year and 0-indexed month being displayed
+    const todayKey = toKey(new Date());
+
+    function initCalendar() {
+      const now = new Date();
+      calYear = now.getFullYear();
+      calMonth = now.getMonth();
+      document.getElementById('cal-prev').addEventListener('click', () => shiftMonth(-1));
+      document.getElementById('cal-next').addEventListener('click', () => shiftMonth(1));
+      renderCalendar();
+    }
+
+    function shiftMonth(delta) {
+      const d = new Date(calYear, calMonth + delta, 1);
+      calYear = d.getFullYear();
+      calMonth = d.getMonth();
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      document.getElementById('cal-month').textContent = `${MONTHS_PL[calMonth]} ${calYear}`;
+      const grid = document.getElementById('cal-grid');
+      grid.innerHTML = '';
+
+      // Day-of-week header (Mon–Sun)
+      DAYS_PL.forEach(n => {
+        const el = document.createElement('div');
+        el.className = 'cal-day-name';
+        el.textContent = n;
+        grid.appendChild(el);
+      });
+
+      // Compute first cell: date of the 1st, and which column it falls in (Mon=0)
+      const firstDayDow = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+      const leadBlanks = dowToIndex(firstDayDow);
+
+      for (let i = 0; i < leadBlanks; i++) {
+        const blank = document.createElement('div');
+        blank.className = 'cal-cell empty';
+        grid.appendChild(blank);
+      }
+
+      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = toKey(new Date(calYear, calMonth, d));
+        const dayData = state.days[key];
+
+        const cell = document.createElement('div');
+        cell.className = 'cal-cell';
+        if (key === todayKey) cell.classList.add('today');
+        if (dayData && dayData.flow >= 2) cell.classList.add('period');
+        if (dayData && (dayData.note || (dayData.sym?.length > 0))) {
+          cell.classList.add('has-data');
+        }
+
+        cell.textContent = d;
+        cell.addEventListener('click', () => openDaySheet(key, d));
+        grid.appendChild(cell);
+      }
+    }
+
+    // ============================================
+    // BOTTOM SHEET — day logging
+    // ============================================
+    let activeKey = null;
+
+    function buildChips(containerId, items) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = ''; // rebuild fresh each time the sheet opens
+      items.forEach(([value, label]) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = label;
+        chip.dataset.value = value;
+        chip.addEventListener('click', () => toggleChip(chip));
+        container.appendChild(chip);
+      });
+    }
+
+    function toggleChip(chip) {
+      chip.classList.toggle('active');
+      saveSheetState();
+    }
+
+    function getChipsFrom(containerId) {
+      return [...document.querySelectorAll(`#${containerId} .chip.active`)]
+        .map(c => c.dataset.value);
+    }
+
+    function openDaySheet(key, dayOfMonth) {
+      activeKey = key;
+      const dateObj = fromKey(key);
+      document.getElementById('day-sheet-title').textContent =
+        `${DAYS_PL[dowToIndex(dateObj.getDay())]}, ${dateObj.getDate()} ${MONTHS_PL[dateObj.getMonth()]}`.toUpperCase();
+
+      const dayData = state.days[key] || {};
+
+      // Flow segmented control
+      const flowValue = dayData.flow || 0;
+      document.querySelectorAll('#flow-seg .seg-option').forEach(opt => {
+        opt.classList.toggle('active', Number(opt.dataset.flow) === flowValue);
+      });
+
+      // Symptom chips
+      buildChips('sym-chips', SYMPTOMS_PL);
+      const symSet = new Set(dayData.sym || []);
+      document.querySelectorAll('#sym-chips .chip').forEach(c => {
+        c.classList.toggle('active', symSet.has(c.dataset.value));
+      });
+
+      // Mood chips
+      buildChips('mood-chips', MOODS_PL);
+      const moodSet = new Set(dayData.mood || []);
+      document.querySelectorAll('#mood-chips .chip').forEach(c => {
+        c.classList.toggle('active', moodSet.has(c.dataset.value));
+      });
+
+      // Note
+      document.getElementById('day-note').value = dayData.note || '';
+
+      // Show sheet
+      document.getElementById('day-sheet-backdrop').classList.add('open');
+      document.getElementById('day-sheet').classList.add('open');
+    }
+
+    function closeDaySheet() {
+      document.getElementById('day-sheet-backdrop').classList.remove('open');
+      document.getElementById('day-sheet').classList.remove('open');
+      activeKey = null;
+    }
+
+    function saveSheetState() {
+      if (!activeKey) return;
+      const flowValue = Number(document.querySelector('#flow-seg .seg-option.active')?.dataset.flow || 0);
+      const sym = getChipsFrom('sym-chips');
+      const mood = getChipsFrom('mood-chips');
+      const note = document.getElementById('day-note').value.trim();
+
+      updateDay(activeKey, {
+        flow: flowValue,
+        sym, mood, note
+      });
+      renderToday();
+      renderCalendar();  // keep both views in sync with sheet edits
+      renderHistory();
+    }
+
+    // Wire up sheet controls
+    document.querySelectorAll('#flow-seg .seg-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('#flow-seg .seg-option').forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        saveSheetState();
+      });
+    });
+
+    document.getElementById('day-note').addEventListener('input', saveSheetState);
+    document.getElementById('sheet-done').addEventListener('click', closeDaySheet);
+    document.getElementById('day-sheet-backdrop').addEventListener('click', closeDaySheet);
+
+    // ============================================
+    // CYCLE LOGIC — Stage 3 (pure functions)
+    // ============================================
+
+    /** Get period days: flow >= 2 */
+    function getPeriodDays() {
+      return Object.keys(state.days)
+        .filter(k => state.days[k].flow >= 2)
+        .sort(); // YYYY-MM-DD sorts chronologically
+    }
+
+    /** Group consecutive period days into periods. A single-day gap does not split; a 2+ day gap starts new period. */
+    function groupPeriods(periodDayKeys) {
+      const periods = [];
+      let current = null;
+
+      for (let i = 0; i < periodDayKeys.length; i++) {
+        const key = periodDayKeys[i];
+        if (!current) {
+          // Start new period
+          current = { startKey: key, endKey: key, days: [key] };
+        } else {
+          // Check gap: is this day within 1 day of the previous period's last day?
+          const prevEnd = fromKey(current.endKey);
+          const curDate = fromKey(key);
+          const diffDays = Math.round((curDate - prevEnd) / 86400000);
+
+          if (diffDays <= 2) { // one non-period day in between stays in the same period; a 2+-day gap starts a new one
+            current.endKey = key;
+            current.days.push(key);
+          } else {
+            periods.push(current);
+            current = { startKey: key, endKey: key, days: [key] };
+          }
+        }
+      }
+
+      if (current) periods.push(current);
+      return periods;
+    }
+
+    /** Compute cycle lengths between consecutive period starts */
+    function computeCycles(periods) {
+      const cycles = [];
+      for (let i = 1; i < periods.length; i++) {
+        const prevStart = fromKey(periods[i-1].startKey);
+        const curStart = fromKey(periods[i].startKey);
+        const length = Math.round((curStart - prevStart) / 86400000);
+
+        cycles.push({
+          startKey: periods[i-1].startKey,
+          endKey: periods[i].startKey,
+          length,
+          valid: length >= 15 && length <= 60 // outlier filter: 15–60 days only
+        });
+      }
+      return cycles;
+    }
+
+    /** Average cycle length from last 6 valid cycles */
+    function getAverageCycleLength() {
+      const periods = groupPeriods(getPeriodDays());
+      if (periods.length < 2) return state.settings.cycleLen; // fallback to settings
+
+      const cycles = computeCycles(periods);
+      const validCycles = cycles.filter(c => c.valid).slice(-6);
+
+      if (!validCycles.length) return state.settings.cycleLen;
+
+      const avg = Math.round(validCycles.reduce((sum, c) => sum + c.length, 0) / validCycles.length);
+      return avg;
+    }
+
+    /** Get last period start date */
+    function getLastPeriodStart() {
+      const periods = groupPeriods(getPeriodDays());
+      if (!periods.length) return null;
+      return fromKey(periods[periods.length - 1].startKey);
+    }
+
+    /** Helper: add days to date */
+    function addDays(date, n) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + n);
+      return d;
+    }
+
+    /** Predict next cycles (3-4 ahead), with ovulation and fertile window */
+    function predictNextCycles(count = 3) {
+      const periods = groupPeriods(getPeriodDays());
+      if (!periods.length) return []; // no data yet
+
+      const lastStart = fromKey(periods[periods.length - 1].startKey);
+      const avgCycle = getAverageCycleLength();
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      const predictions = [];
+      // §5 rule 6: next_start = last_start + average_cycle — the current cycle's
+      // start is a fact, not a prediction, so never list it as "następny okres"
+      let next = addDays(lastStart, avgCycle);
+
+      for (let i = 0; i < count; i++) {
+        // Keep adding avg until it lands on or after today ("already in the past" = strictly before today)
+        while (next < today) {
+          next = addDays(next, avgCycle);
+        }
+
+        const ovulation = addDays(next, -state.settings.lutealLen);
+        const fertileStart = addDays(ovulation, -5);
+        const fertileEnd = addDays(ovulation, 1);
+
+        predictions.push({
+          start: next,
+          ovulation,
+          fertileStart,
+          fertileEnd
+        });
+
+        // Move to next cycle for loop
+        next = addDays(next, avgCycle);
+      }
+
+      return predictions;
+    }
+
+    /** Today's cycle day number (1-indexed from last period start) */
+    function getTodayCycleDay() {
+      const periods = groupPeriods(getPeriodDays());
+      if (!periods.length) return null; // no data
+
+      const lastStart = fromKey(periods[periods.length - 1].startKey);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      return Math.round((today - lastStart) / 86400000) + 1;
+    }
+
+    // ------------------------------------------------------------------
+    // WORKED EXAMPLES — what the functions return (PLAN.md Stage 3)
+    // ------------------------------------------------------------------
+    // No data at all:
+    //   getPeriodDays()         -> []
+    //   groupPeriods([])        -> []
+    //   computeCycles([])       -> []
+    //   getAverageCycleLength() -> state.settings.cycleLen (28 — fallback)
+    //   getLastPeriodStart()    -> null
+    //   predictNextCycles(3)    -> []
+    //   getTodayCycleDay()      -> null
+    //
+    // One period only: 5 days, 13–17 July 2026 (flow >= 2 on each):
+    //   groupPeriods(['2026-07-13' … '2026-07-17']) ->
+    //     [{ startKey: '2026-07-13', endKey: '2026-07-17', days: [5 keys] }]
+    //   computeCycles(...)      -> []  (two periods are needed to measure a cycle)
+    //   getAverageCycleLength() -> settings fallback (28)
+    //   getLastPeriodStart()    -> new Date(2026, 6, 13)
+    //   predictNextCycles(3)    -> [{ start: first date on/after today that is
+    //                                 lastStart + k·avgCycle, ovulation: start − lutealLen,
+    //                                 fertileStart: ovulation − 5, fertileEnd: ovulation + 1 }, …]
+    //   getTodayCycleDay()      -> (today − 2026-07-13) in days + 1
+    //
+    // Three regular cycles: periods starting 13 Jul, 10 Aug and 7 Sep 2026:
+    //   computeCycles(...)        -> [{ length: 28, valid: true }, { length: 28, valid: true }]
+    //   getAverageCycleLength()   -> 28 (computed from data, not settings)
+    //
+    // A 200-day gap must NOT distort the average: periods starting only on
+    // 31 Dec 2025 and 19 Jul 2026 give a single cycle of length 200:
+    //   computeCycles(...)        -> [{ length: 200, valid: false }]  (outside 15–60)
+    //   getAverageCycleLength()   -> settings fallback (no valid cycles at all)
+
+    // ============================================
+    // TODAY TAB — Stage 4 (ring + mark button + upcoming dates)
+    // ============================================
+    const fmtPL = d => d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    /** Polish relative wording: "dzisiaj" / "jutro" / "za N dni" / "N dni temu" */
+    function relPL(date) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const diff = Math.round((date - today) / 86400000);
+      if (diff === 0) return 'dzisiaj';
+      if (diff === 1) return 'jutro';
+      if (diff === -1) return 'wczoraj';
+      if (diff < 0) return `${-diff} dni temu`;
+      return `za ${diff} dni`;
+    }
+
+    /** Phase name for a cycle day number (1-based, from period start) */
+    function phaseName(day, avgCycle) {
+      const ovDay = Math.max(2, avgCycle - state.settings.lutealLen);
+      if (!day) return '';
+      if (day <= state.settings.periodLen) return 'Okres';
+      if (day === ovDay) return 'Owulacja';
+      if (day >= ovDay - 5 && day <= ovDay + 1) return 'Okno płodne';
+      return day < ovDay ? 'Faza folikularna' : 'Faza lutealna';
+    }
+
+    function renderToday() {
+      const svg = document.getElementById('cycle-ring');
+      const wrap = document.getElementById('ring-wrap');
+      const numEl = document.getElementById('ring-day-num');
+      const phaseEl = document.getElementById('ring-phase');
+      const btn = document.getElementById('mark-period-btn');
+      const list = document.getElementById('upcoming-list');
+
+      const periods = groupPeriods(getPeriodDays());
+      const hasData = periods.length > 0;
+      const avgCycle = getAverageCycleLength();
+      const cycleDay = getTodayCycleDay(); // null when no data
+      const lastStart = hasData ? getLastPeriodStart() : null;
+
+      wrap.classList.toggle('ring-empty', !hasData);
+
+      // --- ring: one radial tick per cycle day, day 1 at top.
+      // If today is beyond the average cycle (late period), extend the ring so the dot always has a place.
+      svg.innerHTML = '';
+      const cx = 130, cy = 130, rInner = 98, rOuter = 112;
+      const ovDay = Math.max(2, avgCycle - state.settings.lutealLen);
+      const ringDays = hasData ? Math.max(avgCycle, cycleDay) : avgCycle;
+
+      for (let i = 0; i < ringDays; i++) {
+        const day = i + 1;
+        const angle = (i / ringDays) * Math.PI * 2 - Math.PI / 2; // clockwise from top
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', (cx + rInner * Math.cos(angle)).toFixed(2));
+        line.setAttribute('y1', (cy + rInner * Math.sin(angle)).toFixed(2));
+        line.setAttribute('x2', (cx + rOuter * Math.cos(angle)).toFixed(2));
+        line.setAttribute('y2', (cy + rOuter * Math.sin(angle)).toFixed(2));
+
+        let cls = 'ring-tick';
+        if (day <= state.settings.periodLen) cls += ' tick-period';
+        else if (day === ovDay) cls += ' tick-ovulation';
+        else if (day >= ovDay - 5 && day <= ovDay + 1) cls += ' tick-fertile';
+        else cls += ' tick-rest';
+
+        // Entered period days are solid; everything predicted is a dashed outline (§5 rule 9)
+        const date = lastStart ? addDays(lastStart, day - 1) : null;
+        const entered = !!date && date <= new Date() && (state.days[toKey(date)]?.flow || 0) >= 2;
+        if (!entered) cls += ' tick-predicted';
+
+        line.setAttribute('class', cls);
+        line.style.animationDelay = `${i * 18}ms`; // sequential appearance, staggered per tick
+        svg.appendChild(line);
+      }
+
+      // bright dot on today's tick (the ring is sized to include it)
+      if (hasData && cycleDay >= 1) {
+        const angle = ((cycleDay - 1) / ringDays) * Math.PI * 2 - Math.PI / 2;
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', (cx + (rOuter + 7) * Math.cos(angle)).toFixed(2));
+        dot.setAttribute('cy', (cy + (rOuter + 7) * Math.sin(angle)).toFixed(2));
+        dot.setAttribute('r', 4.5);
+        dot.setAttribute('id', 'today-dot');
+        svg.appendChild(dot);
+      }
+
+      // --- center: cycle day as a large serif numeral, phase name beneath ---
+      numEl.textContent = hasData ? String(cycleDay) : '—';
+      phaseEl.textContent = hasData
+        ? phaseName(cycleDay, avgCycle)
+        : 'Zaznacz pierwszy dzień okresu, aby zobaczyć prognozy';
+
+      // --- mark-period button; label changes with state ---
+      const todayMarked = (state.days[todayKey]?.flow || 0) >= 2;
+      btn.textContent = !hasData ? 'Zaznacz pierwszy dzień okresu'
+        : todayMarked ? 'Odznacz okres na dziś'
+        : 'Zaznacz okres na dziś';
+      btn.classList.toggle('unmark', todayMarked);
+
+      // --- upcoming dates: next period, ovulation, fertile window ---
+      list.innerHTML = '';
+      const preds = predictNextCycles(1);
+      if (!preds.length) {
+        const li = document.createElement('li');
+        li.className = 'upcoming-item';
+        li.textContent = 'Zaznacz okres, aby zobaczyć prognozy.';
+        list.appendChild(li);
+      } else {
+        const p = preds[0];
+        addUpcomingItem(list, 'Następny okres', fmtPL(p.start), relPL(p.start));
+        addUpcomingItem(list, 'Owulacja (szacowana)', fmtPL(p.ovulation), relPL(p.ovulation));
+        addUpcomingItem(list, 'Okno płodne', `${fmtPL(p.fertileStart)} – ${fmtPL(p.fertileEnd)}`, relPL(p.fertileStart));
+      }
+
+      // ticks animate in sequence when the tab opens — unless reduced motion is set
+      wrap.classList.toggle('ring-animate', !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+    function addUpcomingItem(list, label, dateText, rel) {
+      const li = document.createElement('li');
+      li.className = 'upcoming-item';
+      const left = document.createElement('div');
+      left.className = 'upcoming-label';
+      left.textContent = label;
+      const right = document.createElement('div');
+      right.className = 'upcoming-date';
+      right.textContent = dateText;
+      const relEl = document.createElement('span');
+      relEl.className = 'upcoming-rel';
+      relEl.textContent = rel;
+      right.appendChild(relEl);
+      li.append(left, right);
+      list.appendChild(li);
+    }
+
+    /** Toggle today's period mark from the big button */
+    function markPeriodToday() {
+      const day = state.days[todayKey] || {};
+      if ((day.flow || 0) >= 2) {
+        updateDay(todayKey, { flow: 0 }); // unmark; updateDay drops the day once empty
+      } else {
+        updateDay(todayKey, { flow: 3 }); // medium — refine later in the calendar sheet
+      }
+      renderToday();
+      renderCalendar();  // keep both views in sync
+      renderHistory();
+    }
+
+    document.getElementById('mark-period-btn').addEventListener('click', markPeriodToday);
+
+    // ============================================
+    // HISTORY TAB — Stage 5 (stats, cycle list, chart)
+    // ============================================
+
+    /** Period length in days = number of flow>=2 days in the group */
+    function periodLength(period) { return period.days.length; }
+
+    function renderHistory() {
+      const periods = groupPeriods(getPeriodDays());
+      const cycles = computeCycles(periods); // chronological, oldest first
+      const grid = document.getElementById('stat-grid');
+      const list = document.getElementById('cycle-list');
+
+      // --- stat tiles ---
+      grid.innerHTML = '';
+      const validCycles = cycles.filter(c => c.valid);
+
+      const avgCycle = validCycles.length
+        ? Math.round(validCycles.reduce((s, c) => s + c.length, 0) / validCycles.length)
+        : state.settings.cycleLen;
+
+      const periodLens = periods.map(periodLength);
+      const recent = periodLens.slice(-6);
+      const avgPeriod = recent.length
+        ? Math.round(recent.reduce((s, n) => s + n, 0) / recent.length)
+        : state.settings.periodLen;
+
+      const cycleRange = validCycles.length
+        ? `${Math.min(...validCycles.map(c => c.length))}–${Math.max(...validCycles.map(c => c.length))}`
+        : '—';
+      const periodRange = periodLens.length
+        ? `${Math.min(...periodLens)}–${Math.max(...periodLens)}`
+        : '—';
+
+      addStatTile(grid, String(avgCycle), 'dni', 'Średnia długość cyklu');
+      addStatTile(grid, String(avgPeriod), 'dni', 'Średnia długość okresu');
+      addStatTile(grid, cycleRange, '', 'Zakres cyklu (dni)');
+      addStatTile(grid, periodRange, '', 'Zakres okresu (dni)');
+
+      // --- cycle list, newest first ---
+      list.innerHTML = '';
+      if (!cycles.length) {
+        const empty = document.createElement('li');
+        empty.className = 'history-empty';
+        empty.textContent = 'Zaznacz co najmniej dwa okresy, aby zobaczyć cykl.';
+        list.appendChild(empty);
+      } else {
+        [...cycles].reverse().forEach(c => {
+          const period = periods.find(p => p.startKey === c.startKey);
+          const item = document.createElement('li');
+          item.className = 'cycle-item' + (c.valid ? '' : ' excluded');
+
+          const left = document.createElement('div');
+          const start = document.createElement('div');
+          start.className = 'cycle-start';
+          start.textContent = fmtPL(fromKey(c.startKey));
+          const meta = document.createElement('span');
+          meta.className = 'cycle-meta';
+          meta.textContent = period ? `okres ${periodLength(period)} dni` : '';
+          left.append(start, meta);
+
+          const right = document.createElement('div');
+          right.className = 'cycle-right';
+          if (!c.valid) {
+            const badge = document.createElement('span');
+            badge.className = 'excluded-badge';
+            badge.textContent = 'poza statystykami';
+            right.appendChild(badge);
+          }
+          const len = document.createElement('div');
+          len.className = 'cycle-len';
+          len.textContent = `${c.length} dni`;
+          right.appendChild(len);
+
+          item.append(left, right);
+          list.appendChild(item);
+        });
+      }
+
+      renderCycleChart(cycles);
+    }
+
+    function addStatTile(grid, value, unit, label) {
+      const tile = document.createElement('div');
+      tile.className = 'stat-tile';
+      const v = document.createElement('div');
+      v.className = 'stat-value';
+      v.textContent = value;
+      if (unit) {
+        const u = document.createElement('span');
+        u.className = 'stat-unit';
+        u.textContent = unit;
+        v.appendChild(u);
+      }
+      const l = document.createElement('div');
+      l.className = 'stat-label';
+      l.textContent = label;
+      tile.append(v, l);
+      grid.appendChild(tile);
+    }
+
+    /** Bar chart of the last 8 cycles in plain SVG */
+    function renderCycleChart(cycles) {
+      const chart = document.getElementById('cycle-chart');
+      chart.innerHTML = '';
+      const last8 = cycles.slice(-8);
+      if (!last8.length) return;
+
+      const W = 340, H = 170, pad = 24, baseY = H - 24;
+      const maxLen = Math.max(...last8.map(c => c.length), 20);
+      const barW = (W - pad * 2) / last8.length;
+
+      // dashed average line across the chart
+      const valid = cycles.filter(c => c.valid);
+      if (valid.length) {
+        const avg = valid.reduce((s, c) => s + c.length, 0) / valid.length;
+        const y = baseY - (avg / maxLen) * (baseY - pad);
+        const avgLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        avgLine.setAttribute('x1', pad); avgLine.setAttribute('x2', W - pad);
+        avgLine.setAttribute('y1', y); avgLine.setAttribute('y2', y);
+        avgLine.setAttribute('stroke', 'var(--muted)');
+        avgLine.setAttribute('stroke-dasharray', '3 4');
+        avgLine.setAttribute('opacity', '.6');
+        chart.appendChild(avgLine);
+      }
+
+      last8.forEach((c, i) => {
+        const h = (c.length / maxLen) * (baseY - pad);
+        const x = pad + i * barW + barW * 0.18;
+
+        const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bar.setAttribute('x', x);
+        bar.setAttribute('y', baseY - h);
+        bar.setAttribute('width', barW * 0.64);
+        bar.setAttribute('height', h);
+        bar.setAttribute('rx', 3);
+        bar.setAttribute('fill', c.valid ? 'var(--rose)' : 'var(--muted)');
+        bar.setAttribute('opacity', c.valid ? '1' : '.4');
+        chart.appendChild(bar);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x + barW * 0.32);
+        label.setAttribute('y', baseY - h - 6);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-size', '11');
+        label.setAttribute('fill', 'var(--ink)');
+        label.textContent = c.length;
+        chart.appendChild(label);
+      });
+
+      const base = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      base.setAttribute('x1', pad); base.setAttribute('x2', W - pad);
+      base.setAttribute('y1', baseY); base.setAttribute('y2', baseY);
+      base.setAttribute('stroke', 'var(--line)');
+      chart.appendChild(base);
+    }
+
+    // ============================================
+    // SETTINGS TAB — Stage 5 (defaults, export, import)
+    // ============================================
+    const SETTINGS_DEFS = [
+      { key: 'cycleLen', label: 'Długość cyklu (dni)', min: 20, max: 45 },
+      { key: 'periodLen', label: 'Długość okresu (dni)', min: 2, max: 10 },
+      { key: 'lutealLen', label: 'Faza lutealna (dni)', min: 10, max: 16 },
+    ];
+
+    function renderSettings() {
+      const container = document.getElementById('settings-controls');
+      container.innerHTML = '';
+      SETTINGS_DEFS.forEach(def => {
+        const row = document.createElement('div');
+        row.className = 'setting-row';
+
+        const label = document.createElement('span');
+        label.className = 'setting-label';
+        label.textContent = def.label;
+
+        const stepper = document.createElement('div');
+        stepper.className = 'stepper';
+        stepper.dataset.setting = def.key;
+
+        const minus = document.createElement('button');
+        minus.className = 'stepper-btn';
+        minus.textContent = '−';
+        minus.dataset.dir = '-1';
+        minus.setAttribute('aria-label', 'Zmniejsz');
+
+        const val = document.createElement('span');
+        val.className = 'stepper-value';
+        val.textContent = state.settings[def.key];
+
+        const plus = document.createElement('button');
+        plus.className = 'stepper-btn';
+        plus.textContent = '+';
+        plus.dataset.dir = '1';
+        plus.setAttribute('aria-label', 'Zwiększ');
+
+        stepper.append(minus, val, plus);
+        row.append(label, stepper);
+        container.appendChild(row);
+      });
+    }
+
+    // Stepper buttons — delegated on the container so it survives re-renders
+    document.getElementById('settings-controls').addEventListener('click', e => {
+      const btn = e.target.closest('.stepper-btn');
+      if (!btn) return;
+      const stepper = btn.closest('.stepper');
+      const def = SETTINGS_DEFS.find(d => d.key === stepper.dataset.setting);
+      const delta = Number(btn.dataset.dir);
+      const next = Math.max(def.min, Math.min(def.max, state.settings[def.key] + delta));
+      setSettings({ [def.key]: next });
+      renderSettings();
+      renderToday();   // ring uses cycleLen + lutealLen
+      renderHistory(); // averages fall back to these defaults
+    });
+
+    // --- Export to a JSON file ---
+    document.getElementById('export-btn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cykl-backup-${toKey(new Date())}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // --- Import: validate, confirm, replace ---
+    const importFile = document.getElementById('import-file');
+    document.getElementById('import-btn').addEventListener('click', () => importFile.click());
+
+    importFile.addEventListener('change', () => {
+      const file = importFile.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        let parsed;
+        try { parsed = JSON.parse(reader.result); }
+        catch { alert('Nie udało się odczytać pliku — to nie jest ważny plik JSON.'); return; }
+        if (!validateBackup(parsed)) {
+          alert('Plik nie zawiera oczekiwanej struktury danych. Import odwołany.');
+          return;
+        }
+        if (confirm('Zastąpić wszystkie obecne dane danymi z pliku? Tej operacji nie można cofnąć.')) {
+          state = normalizeBackup(parsed);
+          saveState();
+          renderAll();
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+      importFile.value = ''; // allow re-importing the same file
+    });
+
+    function validateBackup(parsed) {
+      return parsed && typeof parsed === 'object'
+        && parsed.settings && typeof parsed.settings === 'object'
+        && parsed.days && typeof parsed.days === 'object';
+    }
+
+    function normalizeBackup(parsed) {
+      return {
+        v: 1,
+        settings: Object.assign({ cycleLen: 28, periodLen: 5, lutealLen: 14 }, parsed.settings),
+        days: parsed.days,
+      };
+    }
+
+    // --- Delete all, behind a double confirmation ---
+    document.getElementById('delete-all-btn').addEventListener('click', () => {
+      if (!confirm('Czy na pewno chcesz usunąć wszystkie dane? Tej operacji nie można cofnąć.')) return;
+      if (!confirm('To ostatnie pytanie. Usunąć wszystkie okresy, objawy, notatki i ustawienia?')) return;
+      state = { v: 1, settings: { cycleLen: 28, periodLen: 5, lutealLen: 14 }, days: {} };
+      saveState();
+      renderAll();
+    });
+
+    function renderAll() {
+      renderToday();
+      renderCalendar();
+      renderHistory();
+      renderSettings();
+    }
+
+    // Initialize
+    loadState();
+    initCalendar();
+    renderToday();
+    renderHistory();
+    renderSettings();
+  </script>
+  <script>
+    // PWA: register the cache-first service worker (Stage 6)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
