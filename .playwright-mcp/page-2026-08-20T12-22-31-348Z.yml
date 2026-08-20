@@ -1,0 +1,73 @@
+- generic [ref=f3e2]:
+  - banner [ref=f3e3]:
+    - generic [ref=f3e4]: Cykl
+  - main [ref=f3e5]:
+    - generic [ref=f3e6]:
+      - generic [ref=f3e7]:
+        - generic [ref=f3e8]: Czas na kopię zapasową
+        - generic [ref=f3e9]: Zapisz plik z Twoimi danymi, żeby mieć pod ręką kopię zapasową.
+      - generic [ref=f3e10]:
+        - button "Zapisz kopię" [ref=f3e11] [cursor=pointer]
+        - button "Później" [ref=f3e12] [cursor=pointer]
+    - generic [ref=f3e56]:
+      - heading [level=3] [ref=f3e58]
+      - generic [ref=f3e59]:
+        - generic [ref=f3e60]: Nasilenie
+        - generic [ref=f3e61]:
+          - generic [ref=f3e62] [cursor=pointer]: brak
+          - generic [ref=f3e63] [cursor=pointer]: plamienie
+          - generic [ref=f3e64] [cursor=pointer]: słabe
+          - generic [ref=f3e65] [cursor=pointer]: średnie
+          - generic [ref=f3e66] [cursor=pointer]: mocne
+      - generic [ref=f3e67]: Objawy
+      - generic [ref=f3e69]: Nastroje
+      - textbox "Notatki…" [ref=f3e72]
+      - button "Gotowe" [ref=f3e73] [cursor=pointer]
+    - generic [ref=f3e90]:
+      - heading "Domyślne wartości" [level=2] [ref=f3e91]
+      - generic [ref=f3e92]:
+        - generic [ref=f3e93]:
+          - generic [ref=f3e94]: Długość cyklu (dni)
+          - generic [ref=f3e95]:
+            - button "Zmniejsz" [ref=f3e96] [cursor=pointer]: −
+            - generic [ref=f3e97]: "28"
+            - button "Zwiększ" [ref=f3e98] [cursor=pointer]: +
+        - generic [ref=f3e99]:
+          - generic [ref=f3e100]: Długość okresu (dni)
+          - generic [ref=f3e101]:
+            - button "Zmniejsz" [ref=f3e102] [cursor=pointer]: −
+            - generic [ref=f3e103]: "5"
+            - button "Zwiększ" [ref=f3e104] [cursor=pointer]: +
+        - generic [ref=f3e105]:
+          - generic [ref=f3e106]: Faza lutealna (dni)
+          - generic [ref=f3e107]:
+            - button "Zmniejsz" [ref=f3e108] [cursor=pointer]: −
+            - generic [ref=f3e109]: "14"
+            - button "Zwiększ" [ref=f3e110] [cursor=pointer]: +
+      - heading "Kopie zapasowe" [level=2] [ref=f3e111]
+      - generic [ref=f3e112]: Przypomnienie o zapisie kopii pliku
+      - generic [ref=f3e113]:
+        - generic [ref=f3e114] [cursor=pointer]: codziennie
+        - generic [ref=f3e115] [cursor=pointer]: co tydzień
+        - generic [ref=f3e116] [cursor=pointer]: co miesiąc
+        - generic [ref=f3e117] [cursor=pointer]: nigdy
+      - generic [ref=f3e118]: "Ostatnia kopia: jeszcze nie zapisano"
+      - heading "Kopie w aplikacji" [level=2] [ref=f3e119]
+      - paragraph [ref=f3e120]: Aplikacja automatycznie zapisuje kopię Twoich danych za każdym razem, gdy ją otwierasz. Możesz w każdej chwili wrócić do wcześniejszej wersji.
+      - list [ref=f3e121]:
+        - listitem [ref=f3e122]:
+          - generic [ref=f3e123]:
+            - generic [ref=f3e124]: 20 sierpień 2026, 14:18
+            - generic [ref=f3e125]: 5 dni z wpisami
+          - button "Przywróć" [ref=f3e126] [cursor=pointer]
+      - heading "Dane" [level=2] [ref=f3e127]
+      - generic [ref=f3e128]:
+        - button "Eksportuj dane (JSON)" [ref=f3e129] [cursor=pointer]
+        - button "Importuj dane" [ref=f3e130] [cursor=pointer]
+        - button "Usuń wszystkie dane" [ref=f3e131] [cursor=pointer]
+      - paragraph [ref=f3e132]: Prognozy w tej aplikacji są oszacowane na podstawie wpisanych danych i nie są metodą antykoncepcji.
+  - navigation [ref=f3e74]:
+    - generic [ref=f3e75] [cursor=pointer]: Dziś
+    - generic [ref=f3e78] [cursor=pointer]: Kalendarz
+    - generic [ref=f3e82] [cursor=pointer]: Historia
+    - generic [ref=f3e86] [cursor=pointer]: Ustawienia

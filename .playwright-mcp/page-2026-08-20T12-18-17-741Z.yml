@@ -1,0 +1,54 @@
+- generic [ref=f3e2]:
+  - banner [ref=f3e3]:
+    - generic [ref=f3e4]: Cykl
+  - main [ref=f3e5]:
+    - generic [ref=f3e6]:
+      - generic [ref=f3e7]:
+        - generic [ref=f3e8]: Czas na kopię zapasową
+        - generic [ref=f3e9]: Zapisz plik z Twoimi danymi, żeby mieć pod ręką kopię zapasową.
+      - generic [ref=f3e10]:
+        - button "Zapisz kopię" [ref=f3e11] [cursor=pointer]
+        - button "Później" [ref=f3e12] [cursor=pointer]
+    - generic [ref=f3e13]:
+      - generic [ref=f3e14]:
+        - img "Pierścień cyklu" [ref=f3e15]
+        - generic:
+          - generic: "5"
+          - generic: Okres
+      - button "Odznacz okres na dziś" [ref=f3e41] [cursor=pointer]
+      - heading "Nadchodzące daty" [level=2] [ref=f3e42]
+      - list [ref=f3e43]:
+        - listitem [ref=f3e44]:
+          - generic [ref=f3e45]: Następny okres
+          - generic [ref=f3e46]:
+            - text: 13 wrz 2026
+            - generic [ref=f3e47]: za 24 dni
+        - listitem [ref=f3e48]:
+          - generic [ref=f3e49]: Owulacja (szacowana)
+          - generic [ref=f3e50]:
+            - text: 30 sie 2026
+            - generic [ref=f3e51]: za 10 dni
+        - listitem [ref=f3e52]:
+          - generic [ref=f3e53]: Okno płodne
+          - generic [ref=f3e54]:
+            - text: 25 sie 2026 – 31 sie 2026
+            - generic [ref=f3e55]: za 5 dni
+    - generic [ref=f3e56]:
+      - heading [level=3] [ref=f3e58]
+      - generic [ref=f3e59]:
+        - generic [ref=f3e60]: Nasilenie
+        - generic [ref=f3e61]:
+          - generic [ref=f3e62] [cursor=pointer]: brak
+          - generic [ref=f3e63] [cursor=pointer]: plamienie
+          - generic [ref=f3e64] [cursor=pointer]: słabe
+          - generic [ref=f3e65] [cursor=pointer]: średnie
+          - generic [ref=f3e66] [cursor=pointer]: mocne
+      - generic [ref=f3e67]: Objawy
+      - generic [ref=f3e69]: Nastroje
+      - textbox "Notatki…" [ref=f3e72]
+      - button "Gotowe" [ref=f3e73] [cursor=pointer]
+  - navigation [ref=f3e74]:
+    - generic [ref=f3e75] [cursor=pointer]: Dziś
+    - generic [ref=f3e78] [cursor=pointer]: Kalendarz
+    - generic [ref=f3e82] [cursor=pointer]: Historia
+    - generic [ref=f3e86] [cursor=pointer]: Ustawienia

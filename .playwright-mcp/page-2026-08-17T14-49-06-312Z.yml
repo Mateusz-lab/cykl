@@ -1,0 +1,26 @@
+- generic [ref=f2e2]:
+  - banner [ref=f2e3]:
+    - generic [ref=f2e4]: Cykl
+  - main [ref=f2e5]:
+    - generic [ref=f2e6]:
+      - heading "Podgląd obliczeń cyklu" [level=2] [ref=f2e7]
+      - generic [ref=f2e8]: "Dni okresu (flow ≥ 2): 20 Okresy: 4 • 25 sty 2026 – 29 sty 2026 (5 dni) • 24 maj 2026 – 28 maj 2026 (5 dni) • 21 cze 2026 – 25 cze 2026 (5 dni) • 19 lip 2026 – 23 lip 2026 (5 dni) Cykle: 3 • od 25 sty 2026: 119 dni — wykluczony z uśredniania • od 24 maj 2026: 28 dni • od 21 cze 2026: 28 dni Średni cykl: 28 dni Ostatni okres zaczął się: 19 lip 2026 Dzień cyklu dzisiaj: 30 Prognozy: • okres: 13 wrz 2026 | owulacja: 30 sie 2026 | okno płodne: 25 sie 2026 – 31 sie 2026 • okres: 11 paź 2026 | owulacja: 27 wrz 2026 | okno płodne: 22 wrz 2026 – 28 wrz 2026 • okres: 8 lis 2026 | owulacja: 25 paź 2026 | okno płodne: 20 paź 2026 – 26 paź 2026"
+    - generic [ref=f2e9]:
+      - heading [level=3] [ref=f2e11]
+      - generic [ref=f2e12]:
+        - generic [ref=f2e13]: Nasilenie
+        - generic [ref=f2e14]:
+          - generic [ref=f2e15] [cursor=pointer]: brak
+          - generic [ref=f2e16] [cursor=pointer]: plamienie
+          - generic [ref=f2e17] [cursor=pointer]: słabe
+          - generic [ref=f2e18] [cursor=pointer]: średnie
+          - generic [ref=f2e19] [cursor=pointer]: mocne
+      - generic [ref=f2e20]: Objawy
+      - generic [ref=f2e22]: Nastroje
+      - textbox "Notatki…" [ref=f2e25]
+      - button "Gotowe" [ref=f2e26] [cursor=pointer]
+  - navigation [ref=f2e27]:
+    - generic [ref=f2e28] [cursor=pointer]: Dziś
+    - generic [ref=f2e31] [cursor=pointer]: Kalendarz
+    - generic [ref=f2e35] [cursor=pointer]: Historia
+    - generic [ref=f2e39] [cursor=pointer]: Ustawienia

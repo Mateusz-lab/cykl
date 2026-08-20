@@ -615,6 +615,118 @@
       line-height: 1.5;
       color: var(--muted);
     }
+
+    /* ============================================ */
+    /* Calendar colour legend                        */
+    /* ============================================ */
+    .cal-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 16px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--dusk);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .cal-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .cal-legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      flex: 0 0 auto;
+    }
+    .legend-period { background: rgba(240, 92, 124, 0.55); }
+    .legend-today { background: transparent; border: 2px solid var(--ink); }
+    .legend-dot {
+      background: transparent;
+      position: relative;
+    }
+    .legend-dot::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+
+    /* ============================================ */
+    /* STAGE 7 — BACKUPS                            */
+    /* ============================================ */
+    .backup-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 0 0 16px;
+      padding: 14px 16px;
+      background: var(--dusk);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    .backup-panel[hidden] { display: none; }
+    .backup-panel-text { display: flex; flex-direction: column; gap: 2px; }
+    .backup-panel-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+    .backup-panel-sub { font-size: 13px; color: var(--muted); }
+    .backup-panel-actions { display: flex; flex-direction: column; gap: 8px; }
+    .backup-panel-actions .btn { width: auto; padding: 10px 16px; font-size: 14px; white-space: nowrap; }
+    .backup-save { background: var(--rose); color: #fff; }
+    .backup-later { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+
+    .last-copy {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .snapshot-hint {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .snapshot-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .snapshot-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--dusk);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .snapshot-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .snapshot-when { font-size: 14px; color: var(--ink); }
+    .snapshot-count { font-size: 12px; color: var(--muted); }
+    .snapshot-restore {
+      padding: 7px 12px;
+      font-size: 13px;
+      border-radius: 9px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .snapshot-empty {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 6px 0;
+    }
   </style>
 </head>
 <body>
@@ -624,6 +736,18 @@
     </header>
 
     <main>
+      <!-- Stage 7 — backup reminder, shown at launch when it's due -->
+      <div class="backup-panel" id="backup-panel" hidden>
+        <div class="backup-panel-text">
+          <span class="backup-panel-title">Czas na kopię zapasową</span>
+          <span class="backup-panel-sub">Zapisz plik z Twoimi danymi, żeby mieć pod ręką kopię zapasową.</span>
+        </div>
+        <div class="backup-panel-actions">
+          <button class="btn backup-save" id="backup-save">Zapisz kopię</button>
+          <button class="btn btn-secondary backup-later" id="backup-later">Później</button>
+        </div>
+      </div>
+
       <!-- Stage 4 — Today tab: cycle ring, mark button, upcoming dates -->
       <section id="tab-today" class="tab-content active">
         <div class="ring-wrap" id="ring-wrap">
@@ -651,6 +775,12 @@
           </button>
         </div>
         <div class="cal-grid" id="cal-grid"></div>
+
+        <div class="cal-legend">
+          <span class="cal-legend-item"><span class="cal-legend-swatch legend-period"></span>Okres (nasilenie ≥ 2)</span>
+          <span class="cal-legend-item"><span class="cal-legend-swatch legend-today"></span>Dzisiaj</span>
+          <span class="cal-legend-item"><span class="cal-legend-swatch legend-dot"></span>Wpis (objawy, nastroje lub notatka)</span>
+        </div>
       </section>
 
       <!-- Bottom sheet for day logging -->
@@ -702,6 +832,20 @@
         <h2 class="section-title">Domyślne wartości</h2>
         <div id="settings-controls"></div>
 
+        <h2 class="section-title">Kopie zapasowe</h2>
+        <div class="sheet-label">Przypomnienie o zapisie kopii pliku</div>
+        <div class="segmented" id="backup-freq">
+          <div class="seg-option" data-freq="daily">codziennie</div>
+          <div class="seg-option" data-freq="week">co tydzień</div>
+          <div class="seg-option active" data-freq="month">co miesiąc</div>
+          <div class="seg-option" data-freq="never">nigdy</div>
+        </div>
+        <div class="last-copy" id="last-copy">Ostatnia kopia: jeszcze nie zapisano</div>
+
+        <h2 class="section-title">Kopie w aplikacji</h2>
+        <p class="snapshot-hint">Aplikacja automatycznie zapisuje kopię Twoich danych za każdym razem, gdy ją otwierasz. Możesz w każdej chwili wrócić do wcześniejszej wersji.</p>
+        <ul class="snapshot-list" id="snapshot-list"></ul>
+
         <h2 class="section-title">Dane</h2>
         <div class="settings-actions">
           <button class="btn btn-secondary" id="export-btn">Eksportuj dane (JSON)</button>
@@ -740,9 +884,18 @@
     // ============================================
     const STORAGE_KEY = 'cykl.data';
 
+    // Stage 7 — backup reminder settings, merged on every load so older
+    // saved state (pre-Stage 7) still gets sensible defaults.
+    const BACKUP_DEFAULTS = {
+      freq: 'month',      // 'daily' | 'week' | 'month' | 'never'
+      lastExport: null,   // 'YYYY-MM-DD' of the last saved copy, or null
+      lastExportCount: 0  // how many days-with-entries there were then
+    };
+
     let state = {
       v: 1,
       settings: { cycleLen: 28, periodLen: 5, lutealLen: 14 },
+      backup: Object.assign({}, BACKUP_DEFAULTS),
       days: {}
     };
 
@@ -753,6 +906,7 @@
           state = JSON.parse(raw);
           // merge defaults for safety
           state.settings = Object.assign({ cycleLen: 28, periodLen: 5, lutealLen: 14 }, state.settings);
+          state.backup = Object.assign({}, BACKUP_DEFAULTS, state.backup);
         }
       } catch (e) {
         console.error('Failed to load state', e);
@@ -784,6 +938,11 @@
 
     function setSettings(changes) {
       state.settings = Object.assign(state.settings, changes);
+      saveState();
+    }
+
+    function setBackup(changes) {
+      state.backup = Object.assign(state.backup, changes);
       saveState();
     }
 
@@ -1341,9 +1500,9 @@
       grid.innerHTML = '';
       const validCycles = cycles.filter(c => c.valid);
 
-      const avgCycle = validCycles.length
-        ? Math.round(validCycles.reduce((s, c) => s + c.length, 0) / validCycles.length)
-        : state.settings.cycleLen;
+      // Same source as the predictions: getAverageCycleLength() caps the
+      // average at the last 6 valid cycles (PLAN §5 rule 5)
+      const avgCycle = getAverageCycleLength();
 
       const periodLens = periods.map(periodLength);
       const recent = periodLens.slice(-6);
@@ -1525,6 +1684,11 @@
         row.append(label, stepper);
         container.appendChild(row);
       });
+
+      // Stage 7: keep the backup UI in sync with the saved state
+      syncBackupFreq();
+      renderLastCopy();
+      renderSnapshots();
     }
 
     // Stepper buttons — delegated on the container so it survives re-renders
@@ -1541,8 +1705,8 @@
       renderHistory(); // averages fall back to these defaults
     });
 
-    // --- Export to a JSON file ---
-    document.getElementById('export-btn').addEventListener('click', () => {
+    // --- Export to a JSON file (shared by the settings button and the panel) ---
+    function exportData() {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1552,7 +1716,169 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      markExportDone();
+    }
+
+    // Record that a copy was saved so the reminder resets its clock.
+    function markExportDone() {
+      setBackup({
+        lastExport: toKey(new Date()),
+        lastExportCount: Object.keys(state.days).length
+      });
+      renderLastCopy();
+    }
+
+    document.getElementById('export-btn').addEventListener('click', exportData);
+
+    // ============================================
+    // STAGE 7 — BACKUPS
+    // ============================================
+
+    // --- Frequency picker + "Ostatnia kopia" line ---
+    function renderLastCopy() {
+      const el = document.getElementById('last-copy');
+      el.textContent = state.backup.lastExport
+        ? `Ostatnia kopia: ${state.backup.lastExport}`
+        : 'Ostatnia kopia: jeszcze nie zapisano';
+    }
+
+    // Re-derive the picker's active state from saved settings (the picker is
+    // static HTML, so the saved choice must be applied on first render).
+    function syncBackupFreq() {
+      document.querySelectorAll('#backup-freq .seg-option').forEach(o =>
+        o.classList.toggle('active', o.dataset.freq === state.backup.freq));
+    }
+
+    document.querySelectorAll('#backup-freq .seg-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('#backup-freq .seg-option').forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        setBackup({ freq: opt.dataset.freq });
+      });
     });
+
+    // --- Automatic in-app snapshots (keep the last 10) ---
+    const SNAPSHOT_KEY = 'cykl.snapshots';
+    const SNAPSHOT_LIMIT = 10;
+
+    function loadSnapshots() {
+      try {
+        const raw = localStorage.getItem(SNAPSHOT_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        console.error('Failed to load snapshots', e);
+        return [];
+      }
+    }
+
+    function saveSnapshots(list) {
+      try {
+        localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(list));
+      } catch (e) {
+        console.error('Failed to save snapshots', e);
+      }
+    }
+
+    // Called once at launch: store a deep copy of the whole state and keep the
+    // last SNAPSHOT_LIMIT copies. Skipped when there is nothing to protect yet.
+    function takeSnapshot() {
+      if (!Object.keys(state.days).length) return;
+      const list = loadSnapshots();
+      list.push({
+        t: Date.now(),
+        d: JSON.parse(JSON.stringify(state))
+      });
+      saveSnapshots(list.slice(-SNAPSHOT_LIMIT));
+    }
+
+    function formatSnapshotDate(t) {
+      const d = new Date(t);
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return `${d.getDate()} ${MONTHS_PL[d.getMonth()]} ${d.getFullYear()}, ${hh}:${mm}`;
+    }
+
+    function renderSnapshots() {
+      const listEl = document.getElementById('snapshot-list');
+      listEl.innerHTML = '';
+      const snaps = loadSnapshots();
+
+      if (!snaps.length) {
+        const li = document.createElement('li');
+        li.className = 'snapshot-empty';
+        li.textContent = 'Brak automatycznych kopii. Pierwsza powstanie po zapisaniu pierwszych danych.';
+        listEl.appendChild(li);
+        return;
+      }
+
+      // Newest first, but keep the array index so restore addresses the right copy.
+      for (let i = snaps.length - 1; i >= 0; i--) {
+        const snap = snaps[i];
+        const count = Object.keys(snap.d.days).length;
+
+        const li = document.createElement('li');
+        li.className = 'snapshot-item';
+
+        const meta = document.createElement('div');
+        meta.className = 'snapshot-meta';
+        const when = document.createElement('span');
+        when.className = 'snapshot-when';
+        when.textContent = formatSnapshotDate(snap.t);
+        const cnt = document.createElement('span');
+        cnt.className = 'snapshot-count';
+        cnt.textContent = count === 1 ? '1 dzień z wpisami' : count + ' dni z wpisami';
+        meta.append(when, cnt);
+
+        const btn = document.createElement('button');
+        btn.className = 'snapshot-restore';
+        btn.textContent = 'Przywróć';
+        btn.addEventListener('click', () => restoreSnapshot(i));
+
+        li.append(meta, btn);
+        listEl.appendChild(li);
+      }
+    }
+
+    function restoreSnapshot(index) {
+      const snap = loadSnapshots()[index];
+      if (!snap) return;
+      if (!confirm(`Przywrócić dane z kopii z ${formatSnapshotDate(snap.t)}? Obecne dane zostaną zastąpione.`)) return;
+      state = normalizeBackup(snap.d);
+      saveState();
+      renderAll();
+    }
+
+    // --- Launch reminder panel ---
+    const BACKUP_INTERVALS = { daily: 1, week: 7, month: 30 };
+
+    function daysSinceExport() {
+      if (!state.backup.lastExport) return Infinity;
+      return Math.floor((Date.now() - fromKey(state.backup.lastExport).getTime()) / 86400000);
+    }
+
+    function shouldShowBackupPanel() {
+      const b = state.backup;
+      const interval = BACKUP_INTERVALS[b.freq];
+      if (!interval) return false;                                     // 'never'
+      const count = Object.keys(state.days).length;
+      if (!count) return false;                                        // nothing to back up yet
+      if (count <= b.lastExportCount) return false;                    // no new data since last copy
+      if (!b.lastExport) return true;                                  // never saved a copy yet
+      return daysSinceExport() >= interval;
+    }
+
+    document.getElementById('backup-save').addEventListener('click', () => {
+      exportData();
+      document.getElementById('backup-panel').hidden = true;
+    });
+    document.getElementById('backup-later').addEventListener('click', () => {
+      document.getElementById('backup-panel').hidden = true;
+    });
+
+    function maybeShowBackupPanel() {
+      if (shouldShowBackupPanel()) document.getElementById('backup-panel').hidden = false;
+    }
 
     // --- Import: validate, confirm, replace ---
     const importFile = document.getElementById('import-file');
@@ -1590,6 +1916,7 @@
       return {
         v: 1,
         settings: Object.assign({ cycleLen: 28, periodLen: 5, lutealLen: 14 }, parsed.settings),
+        backup: Object.assign({}, BACKUP_DEFAULTS, parsed.backup),
         days: parsed.days,
       };
     }
@@ -1598,7 +1925,12 @@
     document.getElementById('delete-all-btn').addEventListener('click', () => {
       if (!confirm('Czy na pewno chcesz usunąć wszystkie dane? Tej operacji nie można cofnąć.')) return;
       if (!confirm('To ostatnie pytanie. Usunąć wszystkie okresy, objawy, notatki i ustawienia?')) return;
-      state = { v: 1, settings: { cycleLen: 28, periodLen: 5, lutealLen: 14 }, days: {} };
+      state = {
+        v: 1,
+        settings: { cycleLen: 28, periodLen: 5, lutealLen: 14 },
+        backup: Object.assign({}, BACKUP_DEFAULTS, { freq: state.backup.freq }),
+        days: {}
+      };
       saveState();
       renderAll();
     });
@@ -1615,7 +1947,9 @@
     initCalendar();
     renderToday();
     renderHistory();
-    renderSettings();
+    takeSnapshot();          // Stage 7: store this session's data (no-op if empty)
+    renderSettings();        // paints the snapshot list, picker and "Ostatnia kopia"
+    maybeShowBackupPanel();  // Stage 7: one-tap export reminder, if due
   </script>
   <script>
     // PWA: register the cache-first service worker (Stage 6)

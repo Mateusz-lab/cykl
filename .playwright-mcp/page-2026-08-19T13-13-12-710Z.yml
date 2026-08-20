@@ -1,0 +1,47 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]: Cykl
+  - main [ref=f1e5]:
+    - generic [ref=f1e6]:
+      - generic [ref=f1e7]:
+        - img "Pierścień cyklu" [ref=f1e8]
+        - generic:
+          - generic: "1"
+          - generic: Okres
+      - button "Odznacz okres na dziś" [ref=f1e34] [cursor=pointer]
+      - heading "Nadchodzące daty" [level=2] [ref=f1e35]
+      - list [ref=f1e36]:
+        - listitem [ref=f1e37]:
+          - generic [ref=f1e38]: Następny okres
+          - generic [ref=f1e39]:
+            - text: 16 wrz 2026
+            - generic [ref=f1e40]: za 28 dni
+        - listitem [ref=f1e41]:
+          - generic [ref=f1e42]: Owulacja (szacowana)
+          - generic [ref=f1e43]:
+            - text: 2 wrz 2026
+            - generic [ref=f1e44]: za 14 dni
+        - listitem [ref=f1e45]:
+          - generic [ref=f1e46]: Okno płodne
+          - generic [ref=f1e47]:
+            - text: 28 sie 2026 – 3 wrz 2026
+            - generic [ref=f1e48]: za 9 dni
+    - generic [ref=f1e49]:
+      - heading [level=3] [ref=f1e51]
+      - generic [ref=f1e52]:
+        - generic [ref=f1e53]: Nasilenie
+        - generic [ref=f1e54]:
+          - generic [ref=f1e55] [cursor=pointer]: brak
+          - generic [ref=f1e56] [cursor=pointer]: plamienie
+          - generic [ref=f1e57] [cursor=pointer]: słabe
+          - generic [ref=f1e58] [cursor=pointer]: średnie
+          - generic [ref=f1e59] [cursor=pointer]: mocne
+      - generic [ref=f1e60]: Objawy
+      - generic [ref=f1e62]: Nastroje
+      - textbox "Notatki…" [ref=f1e65]
+      - button "Gotowe" [ref=f1e66] [cursor=pointer]
+  - navigation [ref=f1e67]:
+    - generic [ref=f1e68] [cursor=pointer]: Dziś
+    - generic [ref=f1e71] [cursor=pointer]: Kalendarz
+    - generic [ref=f1e75] [cursor=pointer]: Historia
+    - generic [ref=f1e79] [cursor=pointer]: Ustawienia

@@ -1,0 +1,26 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]: Cykl
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - heading "Podgląd obliczeń cyklu" [level=2] [ref=e7]
+      - generic [ref=e8]: "Dni okresu (flow ≥ 2): 0 Okresy: 0 Cykle: 0 Średni cykl: 28 dni (domyślna wartość z ustawień) Brak danych — jeszcze nie zaznaczono żadnego okresu Prognozy: brak (potrzebny co najmniej jeden okres)"
+    - generic [ref=e9]:
+      - heading [level=3] [ref=e11]
+      - generic [ref=e12]:
+        - generic [ref=e13]: Nasilenie
+        - generic [ref=e14]:
+          - generic [ref=e15] [cursor=pointer]: brak
+          - generic [ref=e16] [cursor=pointer]: plamienie
+          - generic [ref=e17] [cursor=pointer]: słabe
+          - generic [ref=e18] [cursor=pointer]: średnie
+          - generic [ref=e19] [cursor=pointer]: mocne
+      - generic [ref=e20]: Objawy
+      - generic [ref=e22]: Nastroje
+      - textbox "Notatki…" [ref=e25]
+      - button "Gotowe" [ref=e26] [cursor=pointer]
+  - navigation [ref=e27]:
+    - generic [ref=e28] [cursor=pointer]: Dziś
+    - generic [ref=e31] [cursor=pointer]: Kalendarz
+    - generic [ref=e35] [cursor=pointer]: Historia
+    - generic [ref=e39] [cursor=pointer]: Ustawienia

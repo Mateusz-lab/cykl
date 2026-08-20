@@ -1,0 +1,33 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]: Cykl
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img "Pierścień cyklu" [ref=e8]
+        - generic:
+          - generic: —
+          - generic: Zaznacz pierwszy dzień okresu, aby zobaczyć prognozy
+      - button "Zaznacz pierwszy dzień okresu" [ref=e33] [cursor=pointer]
+      - heading "Nadchodzące daty" [level=2] [ref=e34]
+      - list [ref=e35]:
+        - listitem [ref=e36]: Zaznacz okres, aby zobaczyć prognozy.
+    - generic [ref=e37]:
+      - heading [level=3] [ref=e39]
+      - generic [ref=e40]:
+        - generic [ref=e41]: Nasilenie
+        - generic [ref=e42]:
+          - generic [ref=e43] [cursor=pointer]: brak
+          - generic [ref=e44] [cursor=pointer]: plamienie
+          - generic [ref=e45] [cursor=pointer]: słabe
+          - generic [ref=e46] [cursor=pointer]: średnie
+          - generic [ref=e47] [cursor=pointer]: mocne
+      - generic [ref=e48]: Objawy
+      - generic [ref=e50]: Nastroje
+      - textbox "Notatki…" [ref=e53]
+      - button "Gotowe" [ref=e54] [cursor=pointer]
+  - navigation [ref=e55]:
+    - generic [ref=e56] [cursor=pointer]: Dziś
+    - generic [ref=e59] [cursor=pointer]: Kalendarz
+    - generic [ref=e63] [cursor=pointer]: Historia
+    - generic [ref=e67] [cursor=pointer]: Ustawienia

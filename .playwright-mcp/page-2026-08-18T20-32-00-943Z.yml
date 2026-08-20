@@ -1,0 +1,43 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]: Cykl
+  - main [ref=e5]:
+    - generic [ref=e37]:
+      - heading [level=3] [ref=e39]
+      - generic [ref=e40]:
+        - generic [ref=e41]: Nasilenie
+        - generic [ref=e42]:
+          - generic [ref=e43] [cursor=pointer]: brak
+          - generic [ref=e44] [cursor=pointer]: plamienie
+          - generic [ref=e45] [cursor=pointer]: słabe
+          - generic [ref=e46] [cursor=pointer]: średnie
+          - generic [ref=e47] [cursor=pointer]: mocne
+      - generic [ref=e48]: Objawy
+      - generic [ref=e50]: Nastroje
+      - textbox "Notatki…" [ref=e53]
+      - button "Gotowe" [ref=e54] [cursor=pointer]
+    - generic [ref=e71]:
+      - heading "Statystyki" [level=2] [ref=e72]
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]: 28dni
+          - generic [ref=e76]: Średnia długość cyklu
+        - generic [ref=e77]:
+          - generic [ref=e78]: 5dni
+          - generic [ref=e79]: Średnia długość okresu
+        - generic [ref=e80]:
+          - generic [ref=e81]: —
+          - generic [ref=e82]: Zakres cyklu (dni)
+        - generic [ref=e83]:
+          - generic [ref=e84]: —
+          - generic [ref=e85]: Zakres okresu (dni)
+      - heading "Ostatnie 8 cykli" [level=2] [ref=e86]
+      - img "Wykres długości ostatnich cykli" [ref=e87]
+      - heading "Wszystkie cykle" [level=2] [ref=e88]
+      - list [ref=e89]:
+        - listitem [ref=e90]: Zaznacz co najmniej dwa okresy, aby zobaczyć cykl.
+  - navigation [ref=e55]:
+    - generic [ref=e56] [cursor=pointer]: Dziś
+    - generic [ref=e59] [cursor=pointer]: Kalendarz
+    - generic [ref=e63] [cursor=pointer]: Historia
+    - generic [ref=e67] [cursor=pointer]: Ustawienia

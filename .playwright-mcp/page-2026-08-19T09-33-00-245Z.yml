@@ -1,0 +1,50 @@
+- generic [ref=f6e2]:
+  - banner [ref=f6e3]:
+    - generic [ref=f6e4]: Cykl
+  - main [ref=f6e5]:
+    - generic [ref=f6e6]:
+      - heading [level=3] [ref=f6e8]
+      - generic [ref=f6e9]:
+        - generic [ref=f6e10]: Nasilenie
+        - generic [ref=f6e11]:
+          - generic [ref=f6e12] [cursor=pointer]: brak
+          - generic [ref=f6e13] [cursor=pointer]: plamienie
+          - generic [ref=f6e14] [cursor=pointer]: słabe
+          - generic [ref=f6e15] [cursor=pointer]: średnie
+          - generic [ref=f6e16] [cursor=pointer]: mocne
+      - generic [ref=f6e17]: Objawy
+      - generic [ref=f6e19]: Nastroje
+      - textbox "Notatki…" [ref=f6e22]
+      - button "Gotowe" [ref=f6e23] [cursor=pointer]
+    - generic [ref=f6e24]:
+      - heading "Domyślne wartości" [level=2] [ref=f6e25]
+      - generic [ref=f6e26]:
+        - generic [ref=f6e27]:
+          - generic [ref=f6e28]: Długość cyklu (dni)
+          - generic [ref=f6e29]:
+            - button "Zmniejsz" [ref=f6e30] [cursor=pointer]: −
+            - generic [ref=f6e31]: "28"
+            - button "Zwiększ" [ref=f6e32] [cursor=pointer]: +
+        - generic [ref=f6e33]:
+          - generic [ref=f6e34]: Długość okresu (dni)
+          - generic [ref=f6e35]:
+            - button "Zmniejsz" [ref=f6e36] [cursor=pointer]: −
+            - generic [ref=f6e37]: "5"
+            - button "Zwiększ" [ref=f6e38] [cursor=pointer]: +
+        - generic [ref=f6e39]:
+          - generic [ref=f6e40]: Faza lutealna (dni)
+          - generic [ref=f6e41]:
+            - button "Zmniejsz" [ref=f6e42] [cursor=pointer]: −
+            - generic [ref=f6e43]: "14"
+            - button "Zwiększ" [ref=f6e44] [cursor=pointer]: +
+      - heading "Dane" [level=2] [ref=f6e45]
+      - generic [ref=f6e46]:
+        - button "Eksportuj dane (JSON)" [ref=f6e47] [cursor=pointer]
+        - button "Importuj dane" [ref=f6e48] [cursor=pointer]
+        - button "Usuń wszystkie dane" [ref=f6e49] [cursor=pointer]
+      - paragraph [ref=f6e50]: Prognozy w tej aplikacji są oszacowane na podstawie wpisanych danych i nie są metodą antykoncepcji.
+  - navigation [ref=f6e51]:
+    - generic [ref=f6e52] [cursor=pointer]: Dziś
+    - generic [ref=f6e55] [cursor=pointer]: Kalendarz
+    - generic [ref=f6e59] [cursor=pointer]: Historia
+    - generic [ref=f6e63] [cursor=pointer]: Ustawienia

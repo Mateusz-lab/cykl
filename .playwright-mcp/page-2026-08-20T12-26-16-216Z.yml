@@ -1,0 +1,78 @@
+- generic [ref=f3e2]:
+  - banner [ref=f3e3]:
+    - generic [ref=f3e4]: Cykl
+  - main [ref=f3e5]:
+    - generic [ref=f3e6]:
+      - generic [ref=f3e7]:
+        - generic [ref=f3e8]: Czas na kopię zapasową
+        - generic [ref=f3e9]: Zapisz plik z Twoimi danymi, żeby mieć pod ręką kopię zapasową.
+      - generic [ref=f3e10]:
+        - button "Zapisz kopię" [ref=f3e11] [cursor=pointer]
+        - button "Później" [ref=f3e12] [cursor=pointer]
+    - generic [ref=f3e133]:
+      - generic [ref=f3e134]:
+        - button "Poprzedni miesiąc" [ref=f3e135] [cursor=pointer]
+        - generic [ref=f3e138]: sierpień 2026
+        - button "Następny miesiąc" [ref=f3e139] [cursor=pointer]
+      - generic [ref=f3e142]:
+        - generic [ref=f3e143]: pon
+        - generic [ref=f3e144]: wt
+        - generic [ref=f3e145]: śr
+        - generic [ref=f3e146]: czw
+        - generic [ref=f3e147]: pt
+        - generic [ref=f3e148]: sob
+        - generic [ref=f3e149]: nd
+        - generic [ref=f3e155] [cursor=pointer]: "1"
+        - generic [ref=f3e156] [cursor=pointer]: "2"
+        - generic [ref=f3e157] [cursor=pointer]: "3"
+        - generic [ref=f3e158] [cursor=pointer]: "4"
+        - generic [ref=f3e159] [cursor=pointer]: "5"
+        - generic [ref=f3e160] [cursor=pointer]: "6"
+        - generic [ref=f3e161] [cursor=pointer]: "7"
+        - generic [ref=f3e162] [cursor=pointer]: "8"
+        - generic [ref=f3e163] [cursor=pointer]: "9"
+        - generic [ref=f3e164] [cursor=pointer]: "10"
+        - generic [ref=f3e165] [cursor=pointer]: "11"
+        - generic [ref=f3e166] [cursor=pointer]: "12"
+        - generic [ref=f3e167] [cursor=pointer]: "13"
+        - generic [ref=f3e168] [cursor=pointer]: "14"
+        - generic [ref=f3e169] [cursor=pointer]: "15"
+        - generic [ref=f3e170] [cursor=pointer]: "16"
+        - generic [ref=f3e171] [cursor=pointer]: "17"
+        - generic [ref=f3e172] [cursor=pointer]: "18"
+        - generic [ref=f3e173] [cursor=pointer]: "19"
+        - generic [ref=f3e174] [cursor=pointer]: "20"
+        - generic [ref=f3e175] [cursor=pointer]: "21"
+        - generic [ref=f3e176] [cursor=pointer]: "22"
+        - generic [ref=f3e177] [cursor=pointer]: "23"
+        - generic [ref=f3e178] [cursor=pointer]: "24"
+        - generic [ref=f3e179] [cursor=pointer]: "25"
+        - generic [ref=f3e180] [cursor=pointer]: "26"
+        - generic [ref=f3e181] [cursor=pointer]: "27"
+        - generic [ref=f3e182] [cursor=pointer]: "28"
+        - generic [ref=f3e183] [cursor=pointer]: "29"
+        - generic [ref=f3e184] [cursor=pointer]: "30"
+        - generic [ref=f3e185] [cursor=pointer]: "31"
+      - generic [ref=f3e186]:
+        - generic [ref=f3e187]: Okres (nasilenie ≥ 2)
+        - generic [ref=f3e189]: Dzisiaj
+        - generic [ref=f3e191]: Wpis (objawy, nastroje lub notatka)
+    - generic [ref=f3e56]:
+      - heading [level=3] [ref=f3e58]
+      - generic [ref=f3e59]:
+        - generic [ref=f3e60]: Nasilenie
+        - generic [ref=f3e61]:
+          - generic [ref=f3e62] [cursor=pointer]: brak
+          - generic [ref=f3e63] [cursor=pointer]: plamienie
+          - generic [ref=f3e64] [cursor=pointer]: słabe
+          - generic [ref=f3e65] [cursor=pointer]: średnie
+          - generic [ref=f3e66] [cursor=pointer]: mocne
+      - generic [ref=f3e67]: Objawy
+      - generic [ref=f3e69]: Nastroje
+      - textbox "Notatki…" [ref=f3e72]
+      - button "Gotowe" [ref=f3e73] [cursor=pointer]
+  - navigation [ref=f3e74]:
+    - generic [ref=f3e75] [cursor=pointer]: Dziś
+    - generic [ref=f3e78] [cursor=pointer]: Kalendarz
+    - generic [ref=f3e82] [cursor=pointer]: Historia
+    - generic [ref=f3e86] [cursor=pointer]: Ustawienia
