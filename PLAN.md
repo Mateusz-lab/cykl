@@ -148,7 +148,7 @@ Build in stages and verify each one before moving on. One giant prompt gives you
 
 Progress: `[x]` = committed, `[ ]` = not started. The last checked stage is where the previous session ended.
 
-### Stan na 2026-08-20 — co się zgadza, a co nie
+### Stan na 2026-08-20 (po Stage 7, wdrożone na GitHub Pages) — co się zgadza, a co nie
 
 Porównano cały `index.html`, `manifest.json` i `sw.js` z planem.
 
@@ -165,12 +165,14 @@ Porównano cały `index.html`, `manifest.json` i `sw.js` z planem.
 1. ~~**Etap 5 vs §5-reguła 5**~~ — **poprawione**: kafelek "Średnia długość cyklu" w `renderHistory()` teraz woła `getAverageCycleLength()` (limit 6 cykli, zgodny z prognozami).
 2. ~~**§7 Kalendarz: "Colour legend"**~~ — **dodane**: legenda `.cal-legend` w kalendarzu (Okres / Dzisiaj / Wpis).
 3. ~~**Etap 7 — backup panel**~~ — **zaimplementowane**: automatyczne snapshoty (maks. 10, klucz `cykl.snapshots`, przywracanie za `confirm`), panel przypomnienia o eksporcie przy starciu, wybór częstotliwości (codziennie / co tydzień / co miesiąc / nigdy) i data ostatniej kopii w Ustawieniach.
-4. ~~**Proces: "Commit after every stage"**~~ — **commit Stage 7** dodany; `PLAN.md` i artefakty robocze committed.
+4. ~~**Proces: "Commit after every stage"**~~ — **commit Stage 7** dodany (`4245195`); `PLAN.md` i artefakty robocze committed.
 5. **Detal:** `todayKey` liczone raz przy starcie — sesja otwarta przez północ trzyma stary klucz; test 23:50 z §10 przechodzi, bo reload przelicza (pozostaje, celowo).
+
+**Status wdrożenia (2026-08-20):** commit `4245195` pushnięty na `origin/main` (`02ed2bc..4245195  main -> main`); `main` zsynchronizowana z `origin/main`; nowa wersja serwuje się z GitHub Pages. Dane w `localStorage` (`cykl.data`, klucz `cykl.snapshots`) są przypisane do adresu strony, więc update nie czyści wpisów użytkownika.
 
 **Artefakty robocze (committed):** `__make_icons.js`, `__verify_cycle.js`, `__verify_dom.js`, `__verify_stage7.js`, `__body.json`, zrzuty ekranu (`*.png`), `.playwright-mcp/`.
 
-**Kolejne kroki:** ① przejście checklisty §10 na iPhone ② opcjonalnie: ręczny test przywracania kopii + eksportu na realnym urządzeniu.
+**Kolejne kroki:** ① przejście checklisty §10 na iPhone ② opcjonalnie: ręczny test przywracania kopii + eksportu na realnym urządzeniu. Uwaga: `sw.js` jest cache-first, więc telefon może chwilowo serwować starą wersję — jeśli nowa nie widać, wymuś twardy reload / ponowne „Dodaj do ekranu głównego".
 
 ### [x] Stage 1 — skeleton and data
 
